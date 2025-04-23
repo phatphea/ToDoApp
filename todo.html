@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo App</title>
+    <link rel="stylesheet" href="main.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script
+      src="https://kit.fontawesome.com/4e26c2294b.js"
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+        'FILL' 1,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+      }
+      </style>
+  </head>
+  <body>
+    <!-- Top NavBar -->
+    <nav id="top-nav">
+      <div class="brand">
+        <span class="material-symbols-outlined">
+          apps
+          </span>
+        <span>To Do</span>
+      </div>
+
+      <div class="search-bar">
+        <i
+          class="search-icon fa-solid fa-magnifying-glass"
+          style="color: #000205"
+        ></i>
+        <input type="text" placeholder="search..." />
+      </div>
+
+      <div class="nav-util">
+
+        <i class="fa-solid fa-gear"></i>
+        <i class="fa-solid fa-question"></i>
+        <i class="fa-solid fa-bell"></i>
+        <img src="user.png" />
+      </div>
+    </nav>
+
+    <div id="app">
+      <!-- Left Nav -->
+      <nav id="left-nav">
+        <div class="mune">
+          <span>
+            <i class="hamber fa-solid fa-bars"></i>
+          </span>
+          <ul>
+            <li class="home active" onclick="display(this)">
+              
+              <i class="fa-sharp fa-solid fa-sun"></i>
+              <span class="txt-mune">My Day</span>
+              <span></span>
+            </li>
+            <li class="home" onclick="display(this)">
+              <i class="fa-regular fa-star"></i>
+              <span class="txt-mune">Important</span>
+              <span></span>
+            </li>
+            <li class="home" onclick="display(this)">
+              <i class="fa-regular fa-calendar-days" ></i>
+              <span class="txt-mune">Planned</span>
+              <span class="badge">1</span>
+            </li>
+            <li class="home" onclick="display(this)">
+              <i class="fa-solid fa-user"></i>
+              <span class="txt-mune">Assigned to me</span>
+              <span></span>
+            </li>
+            <li class="home" onclick="display(this)">
+              <i class="fa-sharp fa-solid fa-house"></i>
+              <span class="txt-mune">Task</span>
+              <span class="badge">4</span>
+            </li>
+          </ul>
+            <div class="line">
+              <hr />
+            </div>
+          <div class="add-new">
+            <i class="add-newicon fa-solid fa-plus" style="color: #0743ab"></i>
+            <input type="text" placeholder="New List" />
+          </div>
+        </div>
+        <div class="footer-left">
+          <ul>
+            <li class="btnoffice"><i class="font-size1 fa-solid fa-envelope"></i></li>
+            <li class="btnoffice"><i class="font-size1 fa-solid fa-calendar"></i></li>
+            <li class="btnoffice"><i class="font-size1  fa-solid fa-user"></i></li>
+            <li class="btnoffice"><i class="font-size1 fa-solid fa-file"></i></li>
+            <li class="btnoffice"><i class="font-size1 fa-solid fa-check"></i></li>
+          </ul>
+        </div>
+      </nav>
+      <!-- Main Body -->
+      <div class="main-body">
+        <div class="navbar-main"> 
+            <div class="tasktoolbar-left">
+            
+              <div class="taskbar">
+              <ul>
+                <li class="taskbar-left">
+                  <span class="txt-left" id="show">
+                    <i class="fa-sharp fa-solid fa-sun"></i>
+                    <span>My Day</span>
+                  </span>
+                </li>
+                <li class="taskbar-left">
+                  <span class="txt-list">...</span>
+                </li>
+                <li class="task-nav">
+                    <span class="material-symbols-outlined">
+                      grid_view
+                    </span>
+                    <span>
+                      Grid
+                    </span>
+                </li>
+                <li class="task-nav">
+                    <span class="material-symbols-outlined">
+                      sort
+                    </span>
+                    <span>
+                      List
+                    </span>
+                </li>
+              </ul>
+            </div>
+            <!-- <div class="date">
+              <p>Tuesday,April 1</p>
+            </div> -->
+          </div>
+          <div class="tasktoolbar-right">
+                <ul>
+                  <li class="toolbar">
+                    <span class="txt-bar"> <i class="font-toobar fa-solid fa-sort"></i>Sort</span>
+                  </li>
+                  <li class="toolbar">
+                    <span class="txt-bar"> <i class="font-toobar fa-regular fa-object-group"></i>Group</span>
+                  </li>
+                  <li class="toolbar">
+                    <span class="txt-bar">  <i class="font-toobar-1 fa-regular fa-lightbulb"></i>Suggestion</span>
+                  </li>
+                </ul>
+          </div>
+        </div>
+        
+        <div class="add-task">
+          <div class="input-container">
+            <input type="text" class="text-input" placeholder="Add Task">
+            <label class="checkbox-wrapper">
+              <input type="checkbox" class="checkbox-input" id="filter-checkbox">
+              <span class="checkbox-circle"></span>
+              <span class="sr-only">Enable filter</span>
+            </label>
+          </div>
+          <div class="option">
+            <div class="btn-option">
+              <span class="material-symbols-outlined">
+                calendar_month
+              </span>
+              <span class="material-symbols-outlined">
+                notifications
+              </span>
+              <span class="material-symbols-outlined">
+                repeat
+                </span>
+            </div>
+            <button> Add New</button>
+          </div>
+        </div>
+
+      </div>
+      <u></u>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
