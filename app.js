@@ -114,7 +114,7 @@ function updateDateTime() {
 updateDateTime();
 setInterval(updateDateTime, 1000);
 
-//new js code
+//option two js code
 const addNewCategoryInput = document.querySelector("#left-nav .mune input");
 const categoryListUL = document.querySelector("#left-nav ul");
 const btnAddNew = document.querySelector(".option button");
@@ -122,44 +122,74 @@ const taskListUL = document.querySelector(".task-list ul");
 const newTaskInput = document.querySelector(".text-input");
 
 let currentCategory = "My Day"; // Default category
-const categoryTasks = {
-  "My Day": [], // Initialize default
+let categoryTasks = loadFromLocalStorage() || {
+  "My Day": [],
 };
+
+// Initialize category list on load
+document.addEventListener("DOMContentLoaded", () => {
+  for (const category in categoryTasks) {
+    addCategoryToDOM(category);
+  }
+  setActiveCategory(currentCategory);
+  renderTaskList(currentCategory);
+});
+
+// Save to localStorage
+function saveToLocalStorage() {
+  localStorage.setItem("categoryTasks", JSON.stringify(categoryTasks));
+}
+
+// Load from localStorage
+function loadFromLocalStorage() {
+  const data = localStorage.getItem("categoryTasks");
+  return data ? JSON.parse(data) : null;
+}
+
+// Add category to DOM
+function addCategoryToDOM(category) {
+  const newLi = document.createElement("li");
+  newLi.className = "home";
+  newLi.setAttribute("onclick", "display(this)");
+  newLi.innerHTML = `
+    <i class="fa-solid fa-list"></i>
+    <span class="txt-mune">${category}</span>
+  `;
+  categoryListUL.appendChild(newLi);
+}
 
 // Add new category on Enter key
 addNewCategoryInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") {
     const newCategory = e.target.value.trim();
-    if (newCategory !== "") {
-      const newLi = document.createElement("li");
-      newLi.className = "home";
-      newLi.setAttribute("onclick", "display(this)");
-      newLi.innerHTML = `
-        <i class="fa-solid fa-list"></i>
-        <span class="txt-mune">${newCategory}</span>
-      `;
-      categoryListUL.appendChild(newLi);
-      categoryTasks[newCategory] = []; // Create empty task list
+    if (newCategory !== "" && !categoryTasks[newCategory]) {
+      categoryTasks[newCategory] = [];
+      addCategoryToDOM(newCategory);
+      saveToLocalStorage();
       addNewCategoryInput.value = "";
     }
   }
 });
 
-// Function to handle category selection
-function display(e) {
+// Set active category and update UI
+function setActiveCategory(categoryName) {
   const allLi = categoryListUL.querySelectorAll("li");
-  allLi.forEach((el) => el.classList.remove("active"));
-  e.classList.add("active");
+  allLi.forEach((el) => {
+    const text = el.querySelector(".txt-mune").textContent.trim();
+    el.classList.toggle("active", text === categoryName);
+  });
 
   const labelShow = document.querySelector("#show");
-  labelShow.innerHTML = "";
-  const clone = e.cloneNode(true);
-  labelShow.appendChild(clone);
+  labelShow.innerHTML = `<i class="fa-solid fa-list"></i><span class="txt-mune">${categoryName}</span>`;
 
+  currentCategory = categoryName;
+  renderTaskList(categoryName);
+}
+
+// Function to handle category selection
+function display(e) {
   const categoryName = e.querySelector(".txt-mune")?.textContent || "My Day";
-  currentCategory = categoryName.trim();
-
-  renderTaskList(currentCategory);
+  setActiveCategory(categoryName.trim());
 }
 
 // Add new task
@@ -173,6 +203,7 @@ btnAddNew.addEventListener("click", (e) => {
     categoryTasks[currentCategory].push(newTask);
     newTaskInput.value = "";
     updateButtonState();
+    saveToLocalStorage();
     renderTaskList(currentCategory);
   }
 });
@@ -182,12 +213,6 @@ function renderTaskList(category) {
   taskListUL.innerHTML = "";
 
   const tasks = categoryTasks[category] || [];
-
-  // if (tasks.length === 0) {
-  //   taskListUL.innerHTML =
-  //     "<li style='opacity: 0.5;'>No tasks in this category.</li>";
-  //   return;
-  // }
 
   tasks.forEach((taskText, index) => {
     const li = document.createElement("li");
@@ -204,6 +229,7 @@ function renderTaskList(category) {
 function deleteTask(category, index) {
   if (categoryTasks[category]) {
     categoryTasks[category].splice(index, 1);
+    saveToLocalStorage();
     renderTaskList(category);
   }
 }
@@ -211,22 +237,14 @@ function deleteTask(category, index) {
 // Mark task as done
 function toggleMarkDone(sender) {
   const task = sender.nextElementSibling;
-  if (sender.checked) {
-    task.classList.add("mark-done");
-  } else {
-    task.classList.remove("mark-done");
-  }
+  task.classList.toggle("mark-done", sender.checked);
 }
 
 // Enable/Disable Add button
 function updateButtonState() {
-  if (newTaskInput.value.trim() === "") {
-    btnAddNew.disabled = true;
-    btnAddNew.classList.add("disabled");
-  } else {
-    btnAddNew.disabled = false;
-    btnAddNew.classList.remove("disabled");
-  }
+  const empty = newTaskInput.value.trim() === "";
+  btnAddNew.disabled = empty;
+  btnAddNew.classList.toggle("disabled", empty);
 }
 
 updateButtonState();
