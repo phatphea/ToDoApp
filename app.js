@@ -81,3 +81,34 @@ updateButtonState();
 
 // Call the function whenever the input value changes
 newTaskInput.addEventListener("input", updateButtonState);
+
+function updateDateTime() {
+  const now = new Date();
+  const options = {
+    weekday: "long",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  };
+  const formattedDate = now
+    .toLocaleDateString("en-US", options)
+    .replace(/,/g, ""); // Remove commas
+  const day = formattedDate.split(" ")[0];
+  const monthDayYear = formattedDate.split(" ").slice(1).join("/");
+  const dateTimeString = `${day}, ${
+    now.getDate() < 10 ? "0" : ""
+  }${now.getDate()}/${now.toLocaleDateString("en-US", {
+    month: "short",
+  })}/${now.getFullYear()}`;
+
+  // Select all elements with class "date"
+  const dateElements = document.querySelectorAll(".date");
+
+  // Loop through and update each one
+  dateElements.forEach(function (el) {
+    el.textContent = dateTimeString;
+  });
+}
+
+updateDateTime();
+setInterval(updateDateTime, 1000);

@@ -194,22 +194,5 @@
     </div>
 
     <script src="app.js"></script>
-    <script>
-      function updateDateTime() {
-        const now = new Date();
-        const dateTimeString = now.toLocaleString();
-
-        // Select all elements with class "date"
-        const dateElements = document.querySelectorAll(".date");
-
-        // Loop through and update each one
-        dateElements.forEach(function (el) {
-          el.textContent = dateTimeString;
-        });
-      }
-
-      updateDateTime();
-      setInterval(updateDateTime, 1000);
-    </script>
   </body>
 </html>
