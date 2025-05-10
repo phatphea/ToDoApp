@@ -83,38 +83,7 @@
 // newTaskInput.addEventListener("input", updateButtonState);
 
 //function displayDateTime
-function updateDateTime() {
-  const now = new Date();
-  const options = {
-    weekday: "long",
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  };
-  const formattedDate = now
-    .toLocaleDateString("en-US", options)
-    .replace(/,/g, ""); // Remove commas
-  const day = formattedDate.split(" ")[0];
-  const monthDayYear = formattedDate.split(" ").slice(1).join("/");
-  const dateTimeString = `${day}, ${
-    now.getDate() < 10 ? "0" : ""
-  }${now.getDate()}/${now.toLocaleDateString("en-US", {
-    month: "short",
-  })}/${now.getFullYear()}`;
-
-  // Select all elements with class "date"
-  const dateElements = document.querySelectorAll(".date");
-
-  // Loop through and update each one
-  dateElements.forEach(function (el) {
-    el.textContent = dateTimeString;
-  });
-}
-
-updateDateTime();
-setInterval(updateDateTime, 1000);
-
-//option two js code
+// DOM elements
 const addNewCategoryInput = document.querySelector("#left-nav .mune input");
 const categoryListUL = document.querySelector("#left-nav ul");
 const btnAddNew = document.querySelector(".option button");
@@ -126,14 +95,7 @@ let categoryTasks = loadFromLocalStorage() || {
   "My Day": [],
 };
 
-// Initialize category list on load
-document.addEventListener("DOMContentLoaded", () => {
-  for (const category in categoryTasks) {
-    addCategoryToDOM(category);
-  }
-  setActiveCategory(currentCategory);
-  renderTaskList(currentCategory);
-});
+// ==================== Utility Functions ====================
 
 // Save to localStorage
 function saveToLocalStorage() {
@@ -145,6 +107,15 @@ function loadFromLocalStorage() {
   const data = localStorage.getItem("categoryTasks");
   return data ? JSON.parse(data) : null;
 }
+
+// Check if a category already exists in DOM
+function categoryExistsInDOM(categoryName) {
+  return Array.from(categoryListUL.querySelectorAll(".txt-mune")).some(
+    (el) => el.textContent.trim() === categoryName
+  );
+}
+
+// ==================== UI Handlers ====================
 
 // Add category to DOM
 function addCategoryToDOM(category) {
@@ -158,20 +129,7 @@ function addCategoryToDOM(category) {
   categoryListUL.appendChild(newLi);
 }
 
-// Add new category on Enter key
-addNewCategoryInput.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") {
-    const newCategory = e.target.value.trim();
-    if (newCategory !== "" && !categoryTasks[newCategory]) {
-      categoryTasks[newCategory] = [];
-      addCategoryToDOM(newCategory);
-      saveToLocalStorage();
-      addNewCategoryInput.value = "";
-    }
-  }
-});
-
-// Set active category and update UI
+// Set active category
 function setActiveCategory(categoryName) {
   const allLi = categoryListUL.querySelectorAll("li");
   allLi.forEach((el) => {
@@ -186,11 +144,57 @@ function setActiveCategory(categoryName) {
   renderTaskList(categoryName);
 }
 
-// Function to handle category selection
-function display(e) {
-  const categoryName = e.querySelector(".txt-mune")?.textContent || "My Day";
-  setActiveCategory(categoryName.trim());
+// Render tasks for the selected category
+function renderTaskList(category) {
+  taskListUL.innerHTML = "";
+
+  const tasks = categoryTasks[category] || [];
+
+  tasks.forEach((taskText, index) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <input type="checkbox" onclick="toggleMarkDone(this)">
+      <span class="task-name">${taskText}</span>
+      <span class="delete material-symbols-outlined" onclick="deleteTask('${category}', ${index})">delete</span>
+    `;
+    taskListUL.appendChild(li);
+  });
 }
+
+// Enable/Disable "Add Task" button
+function updateButtonState() {
+  const empty = newTaskInput.value.trim() === "";
+  btnAddNew.disabled = empty;
+  btnAddNew.classList.toggle("disabled", empty);
+}
+
+// ==================== Events ====================
+
+// Load categories and tasks on page load
+document.addEventListener("DOMContentLoaded", () => {
+  for (const category in categoryTasks) {
+    if (!categoryExistsInDOM(category)) {
+      addCategoryToDOM(category);
+    }
+  }
+  setActiveCategory(currentCategory);
+  renderTaskList(currentCategory);
+});
+
+// Add new category on Enter key
+addNewCategoryInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    const newCategory = e.target.value.trim();
+    if (newCategory !== "" && !categoryTasks[newCategory]) {
+      categoryTasks[newCategory] = [];
+      if (!categoryExistsInDOM(newCategory)) {
+        addCategoryToDOM(newCategory);
+      }
+      saveToLocalStorage();
+      addNewCategoryInput.value = "";
+    }
+  }
+});
 
 // Add new task
 btnAddNew.addEventListener("click", (e) => {
@@ -208,24 +212,21 @@ btnAddNew.addEventListener("click", (e) => {
   }
 });
 
-// Render tasks for selected category
-function renderTaskList(category) {
-  taskListUL.innerHTML = "";
+// Update Add button state on input
+newTaskInput.addEventListener("input", updateButtonState);
 
-  const tasks = categoryTasks[category] || [];
+// Call once on load
+updateButtonState();
 
-  tasks.forEach((taskText, index) => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <input type="checkbox" onclick="toggleMarkDone(this)">
-      <span class="task-name">${taskText}</span>
-      <span class="delete material-symbols-outlined" onclick="deleteTask('${category}', ${index})">delete</span>
-    `;
-    taskListUL.appendChild(li);
-  });
+// ==================== Action Handlers ====================
+
+// Handle category click
+function display(e) {
+  const categoryName = e.querySelector(".txt-mune")?.textContent || "My Day";
+  setActiveCategory(categoryName.trim());
 }
 
-// Delete task from category
+// Delete task
 function deleteTask(category, index) {
   if (categoryTasks[category]) {
     categoryTasks[category].splice(index, 1);
@@ -234,18 +235,36 @@ function deleteTask(category, index) {
   }
 }
 
-// Mark task as done
+// Toggle task complete
 function toggleMarkDone(sender) {
   const task = sender.nextElementSibling;
   task.classList.toggle("mark-done", sender.checked);
 }
 
-// Enable/Disable Add button
-function updateButtonState() {
-  const empty = newTaskInput.value.trim() === "";
-  btnAddNew.disabled = empty;
-  btnAddNew.classList.toggle("disabled", empty);
+// ==================== Date Time ====================
+
+function updateDateTime() {
+  const now = new Date();
+  const options = {
+    weekday: "long",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  };
+  const formattedDate = now
+    .toLocaleDateString("en-US", options)
+    .replace(/,/g, "");
+  const day = formattedDate.split(" ")[0];
+  const dateTimeString = `${day}, ${
+    now.getDate() < 10 ? "0" : ""
+  }${now.getDate()}/${now.toLocaleDateString("en-US", {
+    month: "short",
+  })}/${now.getFullYear()}`;
+
+  document.querySelectorAll(".date").forEach((el) => {
+    el.textContent = dateTimeString;
+  });
 }
 
-updateButtonState();
-newTaskInput.addEventListener("input", updateButtonState);
+updateDateTime();
+setInterval(updateDateTime, 1000);
